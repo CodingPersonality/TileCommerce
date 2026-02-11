@@ -1,0 +1,115 @@
+<!-- Hero Image Slider Section -->
+<section class="hero-slider" role="region" aria-label="Featured product slider">
+  <div class="hero-slider-container">
+    <!-- Slide 1 -->
+    <div class="hero-slide hero-slide--active" role="group" aria-roledescription="slide" aria-label="Slide 1 of 5">
+      <div class="hero-slide-content">
+        <div class="hero-text">
+          <h2 class="hero-subtitle">DISCOVER OUR COLLECTION</h2>
+          <h1 class="hero-title">
+            <span class="hero-title-line">IN TUNE WITH</span>
+            <span class="hero-title-line">THE ARTS</span>
+          </h1>
+          <p class="hero-description">Discover our curated collection of premium tiles and home decor pieces. Craft spaces that inspire creativity.</p>
+          <a href="#" class="hero-cta">SHOP COLLECTION</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="{% static 'images/products/t1.jpg' %}" alt="Premium tile collection showcase" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="hero-slide" role="group" aria-roledescription="slide" aria-label="Slide 2 of 5">
+      <div class="hero-slide-content">
+        <div class="hero-text">
+          <h2 class="hero-subtitle">TIMELESS ELEGANCE</h2>
+          <h1 class="hero-title">
+            <span class="hero-title-line">MARBLE</span>
+            <span class="hero-title-line">TEXTURES</span>
+          </h1>
+          <p class="hero-description">Experience the luxury of marble with our exclusive textured tile collection.</p>
+          <a href="#" class="hero-cta">EXPLORE NOW</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="{% static 'images/products/close-up-marble-textured-tiles_53876-88522.avif' %}" alt="Marble textured tiles collection" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="hero-slide" role="group" aria-roledescription="slide" aria-label="Slide 3 of 5">
+      <div class="hero-slide-content">
+        <div class="hero-text">
+          <h2 class="hero-subtitle">TRANSFORM YOUR SPACE</h2>
+          <h1 class="hero-title">
+            <span class="hero-title-line">INTERIOR</span>
+            <span class="hero-title-line">INSPIRATION</span>
+          </h1>
+          <p class="hero-description">Create stunning interiors with our carefully selected home decor and tile products.</p>
+          <a href="#" class="hero-cta">GET INSPIRED</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="{% static 'images/image.png' %}" alt="Interior design inspiration with premium tiles" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Slide 4 -->
+    <div class="hero-slide" role="group" aria-roledescription="slide" aria-label="Slide 4 of 5">
+      <div class="hero-slide-content">
+        <div class="hero-text">
+          <h2 class="hero-subtitle">PREMIUM QUALITY</h2>
+          <h1 class="hero-title">
+            <span class="hero-title-line">CRAFTED</span>
+            <span class="hero-title-line">PERFECTION</span>
+          </h1>
+          <p class="hero-description">Every tile is meticulously selected to ensure the highest quality for your home.</p>
+          <a href="#" class="hero-cta">VIEW PRODUCTS</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="{% static 'images/products/t1_yBZOrw3.jpg' %}" alt="Premium quality tiles showcase" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Slide 5 -->
+    <div class="hero-slide" role="group" aria-roledescription="slide" aria-label="Slide 5 of 5">
+      <div class="hero-slide-content">
+        <div class="hero-text">
+          <h2 class="hero-subtitle">SEASONAL COLLECTION</h2>
+          <h1 class="hero-title">
+            <span class="hero-title-line">NEW</span>
+            <span class="hero-title-line">ARRIVALS</span>
+          </h1>
+          <p class="hero-description">Explore our latest designs and trending styles for modern living spaces.</p>
+          <a href="#" class="hero-cta">SHOP NEW ITEMS</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="{% static 'images/products/nissan-gt-r-r35-5k-3840x2160-14239.jpg' %}" alt="New collection showcase" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Arrows -->
+  <button class="hero-nav-button hero-nav-button--prev" aria-label="Previous slide" aria-controls="hero-slider">
+    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
+  <button class="hero-nav-button hero-nav-button--next" aria-label="Next slide" aria-controls="hero-slider">
+    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </button>
+
+  <!-- Pagination Dots -->
+  <div class="hero-pagination" role="tablist" aria-label="Slide selection">
+    <button class="hero-dot hero-dot--active" role="tab" aria-selected="true" aria-label="Go to slide 1" aria-controls="hero-slider"></button>
+    <button class="hero-dot" role="tab" aria-selected="false" aria-label="Go to slide 2" aria-controls="hero-slider"></button>
+    <button class="hero-dot" role="tab" aria-selected="false" aria-label="Go to slide 3" aria-controls="hero-slider"></button>
+    <button class="hero-dot" role="tab" aria-selected="false" aria-label="Go to slide 4" aria-controls="hero-slider"></button>
+    <button class="hero-dot" role="tab" aria-selected="false" aria-label="Go to slide 5" aria-controls="hero-slider"></button>
+  </div>
+</section>

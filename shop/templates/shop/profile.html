@@ -1,0 +1,1239 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}My Finance Dashboard - TileCommerce{% endblock %}
+
+{% block extra_css %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .finance-dashboard {
+        min-height: 100vh;
+        background: #f5f5f5;
+        padding: 40px 0 40px 280px;
+        position: relative;
+        overflow: visible;
+    }
+
+    @media (max-width: 1024px) {
+        .finance-dashboard {
+            padding: 40px 0;
+        }
+    }
+
+    /* Decorative shapes */
+    .dashboard-shape-1 {
+        position: fixed;
+        width: 400px;
+        height: 400px;
+        background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+        border-radius: 50%;
+        bottom: -150px;
+        right: -150px;
+        opacity: 0.3;
+        z-index: 1;
+    }
+
+    .dashboard-shape-2 {
+        position: fixed;
+        width: 300px;
+        height: 300px;
+        background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%);
+        bottom: 100px;
+        right: 50px;
+        opacity: 0.2;
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        z-index: 1;
+    }
+
+    .container {
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Dashboard Header */
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 50px;
+        position: relative;
+    }
+
+    .dashboard-title {
+        font-size: 32px;
+        font-weight: 300;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .dashboard-subtitle {
+        font-size: 14px;
+        color: #999;
+    }
+
+    .user-greeting {
+        position: absolute;
+        top: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .user-avatar-small {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #e9ecef;
+    }
+
+    .user-name-greeting {
+        font-size: 14px;
+        color: #333;
+        font-weight: 600;
+    }
+
+    /* Main Layout */
+    .dashboard-wrapper {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 40px;
+        grid-template-rows: auto;
+    }
+
+    /* Sidebar */
+    .dashboard-sidebar {
+        padding: 30px 0;
+        position: fixed;
+        left: 0;
+        width: 240px;
+        top: 160px;
+        overflow-y: auto;
+        max-height: calc(100vh - 180px);
+        z-index: 100;
+        padding-left: 40px;
+        padding-right: 20px;
+    }
+
+    @media (max-width: 1024px) {
+        .dashboard-sidebar {
+            position: relative;
+            top: auto;
+            left: auto;
+            width: 100%;
+            max-height: none;
+            padding: 30px 20px;
+            margin-bottom: 40px;
+        }
+    }
+
+    .sidebar-section-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+    }
+
+    .sidebar-menu {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .sidebar-menu-item a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 15px;
+        color: #666;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .sidebar-menu-item a:hover {
+        background: #f0f0f0;
+        color: #FF6B35;
+    }
+
+    .sidebar-menu-item a.active {
+        background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+        color: white;
+    }
+
+    .sidebar-menu-item i {
+        width: 20px;
+        text-align: center;
+        font-size: 16px;
+    }
+
+    /* Main Content */
+    .dashboard-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+
+    @media (max-width: 1200px) {
+        .dashboard-content {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Cards */
+    .dashboard-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+
+    /* Profile Card */
+    .profile-card {
+        grid-column: 1 / -1;
+    }
+
+    .profile-card-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 30px;
+    }
+
+    .profile-picture-section {
+        position: relative;
+    }
+
+    .profile-picture-large {
+        width: 160px;
+        height: 160px;
+        border-radius: 12px;
+        object-fit: cover;
+        background: #e9ecef;
+        border: 3px solid #f0f0f0;
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-name-large {
+        font-size: 24px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .profile-detail {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .profile-detail i {
+        color: #FF6B35;
+        width: 16px;
+    }
+
+    .sms-alert {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .sms-alert-label {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: 50px;
+        height: 28px;
+        background: #ddd;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .toggle-switch.active {
+        background: #4CAF50;
+    }
+
+    .toggle-switch::after {
+        content: '';
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        background: white;
+        border-radius: 50%;
+        top: 2px;
+        left: 2px;
+        transition: all 0.3s;
+    }
+
+    .toggle-switch.active::after {
+        left: 24px;
+    }
+
+    .save-button {
+        background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .save-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+
+    /* Card Title */
+    .card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .card-title i {
+        color: #FF6B35;
+        font-size: 20px;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .edit-button {
+        background: none;
+        border: none;
+        color: #999;
+        cursor: pointer;
+        font-size: 14px;
+        transition: color 0.3s;
+    }
+
+    .edit-button:hover {
+        color: #FF6B35;
+    }
+
+    /* Account Item */
+    .account-item {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .account-info {
+        flex: 1;
+    }
+
+    .account-type {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 5px;
+    }
+
+    .account-number {
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .account-status {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-active {
+        background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+        color: white;
+    }
+
+    .status-blocked {
+        background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+        color: white;
+    }
+
+    /* Bill Item */
+    .bill-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .bill-item:last-child {
+        border-bottom: none;
+    }
+
+    .bill-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .bill-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+
+    .bill-type {
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .bill-status {
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-paid {
+        background: #4CAF50;
+        color: white;
+    }
+
+    .status-unpaid {
+        background: #FF6B35;
+        color: white;
+    }
+
+    .status-pending {
+        background: #FFC107;
+        color: white;
+    }
+
+    /* Notification Toast */
+    .notification-toast {
+        position: fixed !important;
+        bottom: 20px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 2000 !important;
+        min-width: 350px !important;
+        right: auto !important;
+        top: auto !important;
+        margin: 0 !important;
+    }
+
+    /* Hide footer on profile page */
+    footer {
+        display: none !important;
+    }
+
+    /* Section Content */
+    .section-content {
+        display: none;
+    }
+
+    .section-content.active {
+        display: block;
+    }
+
+    /* Address Items */
+    .address-items {
+        display: grid;
+        gap: 15px;
+    }
+
+    .address-item-card {
+        background: #f8f9fa;
+        border-left: 4px solid #FF6B35;
+        padding: 20px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+
+    .address-item-card:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        background: #f0f7fa;
+    }
+
+    .address-item-name {
+        font-weight: 700;
+        color: #333;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .address-item-details {
+        font-size: 13px;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 12px;
+    }
+
+    .address-item-actions {
+        display: flex;
+        gap: 15px;
+    }
+
+    .address-action-btn {
+        background: none;
+        border: none;
+        color: #FF6B35;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color 0.3s;
+        padding: 0;
+    }
+
+    .address-action-btn:hover {
+        color: #FF8C5A;
+        text-decoration: underline;
+    }
+
+    .address-action-btn.delete {
+        color: #dc3545;
+    }
+
+    .address-action-btn.delete:hover {
+        color: #ff6b6b;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+    }
+
+    .empty-state i {
+        font-size: 48px;
+        color: #ddd;
+        margin-bottom: 15px;
+    }
+
+    /* Address Form */
+    .address-form-wrapper {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+        display: none;
+    }
+
+    .address-form-wrapper.show {
+        display: block;
+    }
+
+    .address-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .address-form.full {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group-address {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group-address label {
+        color: #555;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+    }
+
+    .form-group-address input,
+    .form-group-address select {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        color: #333;
+        font-size: 13px;
+        transition: border-color 0.3s;
+    }
+
+    .form-group-address input:focus,
+    .form-group-address select:focus {
+        outline: none;
+        border-color: #FF6B35;
+        box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+    }
+
+    .form-actions-address {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        grid-column: 1 / -1;
+    }
+
+    .btn-submit-address {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+    }
+
+    .btn-add {
+        background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+        color: white;
+    }
+
+    .btn-add:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+    }
+
+    .btn-cancel {
+        background: #ddd;
+        color: #333;
+    }
+
+    .btn-cancel:hover {
+        background: #ccc;
+    }
+
+    .btn-submit-address.update-mode {
+        background: linear-gradient(135deg, #17a2b8 0%, #20b2aa 100%);
+    }
+
+    .btn-submit-address.update-mode:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Decorative shapes -->
+<div class="dashboard-shape-1"></div>
+<div class="dashboard-shape-2"></div>
+
+<div class="finance-dashboard">
+    <div class="container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header" style="position: relative; margin-bottom: 50px;">
+            <h1 class="dashboard-title">My Finance Dashboard</h1>
+            <p class="dashboard-subtitle">Welcome to TileStore payment portal</p>
+            
+            <div class="user-greeting">
+                <img src="{% if profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}https://via.placeholder.com/40/FF6B35/ffffff?text=U{% endif %}" alt="Avatar" class="user-avatar-small">
+                <span class="user-name-greeting">Hello {{ user.first_name|default:"Sami" }} <i class="fas fa-chevron-down" style="font-size: 12px; margin-left: 5px;"></i></span>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div class="dashboard-wrapper">
+            <!-- Sidebar -->
+            <div class="dashboard-sidebar">
+                <div class="sidebar-section-title">Navigation</div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-menu-item">
+                        <a href="#" class="active" onclick="showSection('profile'); return false;">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="#" onclick="showSection('orders'); return false;">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span>Orders</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="#" onclick="showSection('wishlist'); return false;">
+                            <i class="fas fa-heart"></i>
+                            <span>Wishlist</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="#" onclick="showSection('addresses'); return false;">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Addresses</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="#" onclick="showSection('invite'); return false;">
+                            <i class="fas fa-share-alt"></i>
+                            <span>Invite a Friend</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="#" onclick="showSection('preferences'); return false;">
+                            <i class="fas fa-sliders-h"></i>
+                            <span>Preferences</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="#" onclick="userLogout(); return false;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main Content -->
+            <div class="dashboard-content">
+                <!-- Profile Section -->
+                <div id="profile-section" class="section-content active">
+                    <!-- My Profile Card -->
+                    <div class="dashboard-card profile-card">
+                        <div class="profile-card-header">
+                            <div class="profile-picture-section">
+                                <img id="profilePictureDisplay" src="{% if profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}https://via.placeholder.com/160/DDDDDD/666666?text=Profile{% endif %}" alt="Profile" class="profile-picture-large">
+                            </div>
+                            <div class="profile-info">
+                                <div class="profile-name-large">{{ user.first_name|default:"User" }} {{ user.last_name|default:"" }}</div>
+                                <div class="profile-detail">
+                                    <i class="fas fa-phone"></i>
+                                    <span>+1 856-569-998-1236</span>
+                                </div>
+                                <div class="profile-detail">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>{{ user.email|default:"user@email.com" }}</span>
+                                </div>
+                                
+                                <div class="sms-alert">
+                                    <span class="sms-alert-label">SMS alerts activation</span>
+                                    <div class="toggle-switch active" id="smsToggle" onclick="toggleSmsAlert()"></div>
+                                </div>
+                                
+                                <div style="margin-top: 25px; display: flex; gap: 10px;">
+                                    <button type="button" class="save-button" onclick="toggleEditProfile()">
+                                        <i class="fas fa-edit"></i> Edit Profile
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Accounts Card -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-credit-card"></i>
+                                My xPay accounts
+                            </h3>
+                            <button class="edit-button" title="Edit accounts">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+
+                        <div class="account-item">
+                            <div class="account-info">
+                                <div class="account-type">Active account</div>
+                                <div class="account-number">6545 5060 8898 4525</div>
+                            </div>
+                            <span class="account-status status-active">Block Account</span>
+                        </div>
+
+                        <div class="account-item">
+                            <div class="account-info">
+                                <div class="account-type">Blocked account</div>
+                                <div class="account-number">7852 5960 3322 2856</div>
+                            </div>
+                            <span class="account-status status-blocked">Unblock account</span>
+                        </div>
+                    </div>
+
+                    <!-- My Bills Card -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-receipt"></i>
+                                My bills
+                            </h3>
+                            <button class="edit-button" title="Filter bills">
+                                Filter by
+                            </button>
+                        </div>
+
+                        <div class="bill-item">
+                            <div class="bill-info">
+                                <div class="bill-indicator" style="background: #4CAF50;"></div>
+                                <span class="bill-type">Phone bill</span>
+                            </div>
+                            <span class="bill-status status-paid">Bill paid</span>
+                        </div>
+
+                        <div class="bill-item">
+                            <div class="bill-info">
+                                <div class="bill-indicator" style="background: #FF6B35;"></div>
+                                <span class="bill-type">Internet bill</span>
+                            </div>
+                            <span class="bill-status status-unpaid">Not paid</span>
+                        </div>
+
+                        <div class="bill-item">
+                            <div class="bill-info">
+                                <div class="bill-indicator" style="background: #4CAF50;"></div>
+                                <span class="bill-type">House rent</span>
+                            </div>
+                            <span class="bill-status status-paid">Bill paid</span>
+                        </div>
+
+                        <div class="bill-item">
+                            <div class="bill-info">
+                                <div class="bill-indicator" style="background: #4CAF50;"></div>
+                                <span class="bill-type">Income tax</span>
+                            </div>
+                            <span class="bill-status status-paid">Bill paid</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Addresses Section -->
+                <div id="addresses-section" class="section-content">
+                    <div class="dashboard-card" style="grid-column: 1 / -1;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-map-marker-alt"></i>
+                                My Addresses
+                            </h3>
+                            <button type="button" class="save-button" onclick="toggleAddressForm()" style="padding: 8px 15px; font-size: 11px;">
+                                <i class="fas fa-plus"></i> Add Address
+                            </button>
+                        </div>
+
+                        <!-- Existing Addresses -->
+                        <div id="addresses-list" class="address-items">
+                            {% if addresses %}
+                                {% for address in addresses %}
+                                <div class="address-item-card">
+                                    <div class="address-item-name">{{ address.first_name }} {{ address.last_name }}</div>
+                                    <div class="address-item-details">
+                                        {{ address.address }}{% if address.address2 %}, {{ address.address2 }}{% endif %}<br>
+                                        {{ address.city }}, {{ address.state }} {{ address.postal_code }}<br>
+                                        {{ address.country }}<br>
+                                        <i class="fas fa-phone"></i> {{ address.phone }}
+                                    </div>
+                                    <div class="address-item-actions">
+                                        <button type="button" class="address-action-btn" onclick="editAddress({{ address.id }})">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button type="button" class="address-action-btn delete" onclick="deleteAddressProfile({{ address.id }})">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="empty-state">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <p>No addresses saved yet</p>
+                                    <p style="font-size: 12px;">Click "Add Address" to add your first delivery address</p>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Add Address Form -->
+                        <div id="address-form-wrapper" class="address-form-wrapper">
+                            <h4 style="margin-bottom: 15px; color: #333; font-weight: 600;">Add New Address</h4>
+                            <form id="addressForm" class="address-form">
+                                {% csrf_token %}
+                                <div class="form-group-address">
+                                    <label for="addr-first-name">First Name *</label>
+                                    <input type="text" id="addr-first-name" name="first_name" required>
+                                </div>
+                                <div class="form-group-address">
+                                    <label for="addr-last-name">Last Name *</label>
+                                    <input type="text" id="addr-last-name" name="last_name" required>
+                                </div>
+                                <div class="form-group-address" style="grid-column: 1 / -1;">
+                                    <label for="addr-address">Address Line 1 *</label>
+                                    <input type="text" id="addr-address" name="address" required>
+                                </div>
+                                <div class="form-group-address" style="grid-column: 1 / -1;">
+                                    <label for="addr-address2">Address Line 2</label>
+                                    <input type="text" id="addr-address2" name="address2">
+                                </div>
+                                <div class="form-group-address">
+                                    <label for="addr-city">City *</label>
+                                    <input type="text" id="addr-city" name="city" required>
+                                </div>
+                                <div class="form-group-address">
+                                    <label for="addr-state">State/Region *</label>
+                                    <input type="text" id="addr-state" name="state" required>
+                                </div>
+                                <div class="form-group-address">
+                                    <label for="addr-postal">Postal Code *</label>
+                                    <input type="text" id="addr-postal" name="postal_code" required>
+                                </div>
+                                <div class="form-group-address">
+                                    <label for="addr-country">Country *</label>
+                                    <select id="addr-country" name="country" required>
+                                        <option value="">Select Country</option>
+                                        <option value="US">United States</option>
+                                        <option value="IN">India</option>
+                                        <option value="CA">Canada</option>
+                                        <option value="GB">United Kingdom</option>
+                                        <option value="AU">Australia</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group-address" style="grid-column: 1 / -1;">
+                                    <label for="addr-phone">Phone *</label>
+                                    <input type="tel" id="addr-phone" name="phone" required>
+                                </div>
+                                <div class="form-group-address" style="grid-column: 1 / -1;">
+                                    <label for="addr-email">Email *</label>
+                                    <input type="email" id="addr-email" name="email" required>
+                                </div>
+                                <div class="form-actions-address">
+                                    <button type="submit" class="btn-submit-address btn-add">Save Address</button>
+                                    <button type="button" class="btn-submit-address btn-cancel" onclick="toggleAddressForm()">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wishlist Section -->
+                <div id="wishlist-section" class="section-content">
+                    <div class="dashboard-card" style="grid-column: 1 / -1;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-heart"></i>
+                                My Wishlist
+                            </h3>
+                            <a href="{% url 'wishlist' %}" class="save-button" style="padding: 8px 15px; font-size: 11px; text-decoration: none; display: inline-block;">
+                                <i class="fas fa-eye"></i> View All
+                            </a>
+                        </div>
+
+                        <!-- Wishlist Items -->
+                        <div id="wishlist-items-preview" class="address-items">
+                            {% if wishlist_items %}
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px;">
+                                    {% for item in wishlist_items|slice:":6" %}
+                                    <div class="wishlist-item-preview" style="background: #f8f9fa; border-radius: 8px; overflow: hidden; transition: all 0.3s;">
+                                        <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}https://via.placeholder.com/180/f0f0f0/999999?text=No+Image{% endif %}" 
+                                             alt="{{ item.product.name }}" style="width: 100%; height: 120px; object-fit: cover;">
+                                        <div style="padding: 12px;">
+                                            <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.product.name }}</div>
+                                            <div style="color: #FF6B35; font-weight: 700; margin-bottom: 10px;">₹{{ item.product.price }}</div>
+                                            <button type="button" class="address-action-btn delete" onclick="removeFromWishlistProfile({{ item.product.id }})" style="width: 100%; background: #FF6B35; color: white; padding: 8px; border-radius: 4px; border: none; cursor: pointer; font-size: 11px; font-weight: 600;">
+                                                <i class="fas fa-trash"></i> Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% if wishlist_items|length > 6 %}
+                                <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #f0f0f0;">
+                                    <a href="{% url 'wishlist' %}" class="save-button">View all {{ wishlist_items|length }} items</a>
+                                </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="empty-state">
+                                    <i class="fas fa-heart"></i>
+                                    <p>No items in wishlist</p>
+                                    <p style="font-size: 12px;">Add items to your wishlist from product pages</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showSection(section) {
+    // Hide all sections
+    document.querySelectorAll('.section-content').forEach(el => {
+        el.classList.remove('active');
+    });
+    
+    // Update active menu
+    document.querySelectorAll('.sidebar-menu-item a').forEach(link => {
+        link.classList.remove('active');
+    });
+    event.target.closest('a').classList.add('active');
+    
+    // Show selected section
+    const sectionElement = document.getElementById(section + '-section');
+    if (sectionElement) {
+        sectionElement.classList.add('active');
+    }
+    
+    // Show notification
+    showNotification(`Navigating to ${section}...`, 'success');
+}
+
+function toggleEditProfile() {
+    showNotification('Edit profile functionality coming soon!', 'success');
+}
+
+function toggleSmsAlert() {
+    const toggle = document.getElementById('smsToggle');
+    toggle.classList.toggle('active');
+    const isActive = toggle.classList.contains('active');
+    showNotification(`SMS alerts ${isActive ? 'enabled' : 'disabled'}`, 'success');
+}
+
+function toggleAddressForm() {
+    const formWrapper = document.getElementById('address-form-wrapper');
+    formWrapper.classList.toggle('show');
+    
+    if (formWrapper.classList.contains('show')) {
+        document.getElementById('addressForm').reset();
+        document.getElementById('addr-first-name').focus();
+        // Clear any edit mode
+        document.getElementById('addressForm').dataset.editId = '';
+        document.getElementById('addressForm').dataset.isEdit = 'false';
+        updateSubmitButton();
+    }
+}
+
+function updateSubmitButton() {
+    const form = document.getElementById('addressForm');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const isEdit = form.dataset.isEdit === 'true';
+    
+    if (isEdit) {
+        submitBtn.textContent = 'Update Address';
+        submitBtn.classList.add('update-mode');
+    } else {
+        submitBtn.textContent = 'Save Address';
+        submitBtn.classList.remove('update-mode');
+    }
+}
+
+function saveAddress(e) {
+    e.preventDefault();
+    
+    const form = document.getElementById('addressForm');
+    const isEdit = form.dataset.isEdit === 'true';
+    const editId = form.dataset.editId;
+    
+    const formData = new FormData(form);
+    const csrfToken = form.querySelector('[name="csrfmiddlewaretoken"]');
+    
+    // Determine the URL based on whether it's an edit or create
+    let url = isEdit ? `/cart/address/update/${editId}/` : '{% url 'address' %}';
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken ? csrfToken.value : '',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const message = isEdit ? '✓ Address updated successfully!' : '✓ Address saved successfully!';
+            showNotification(message, 'success');
+            form.reset();
+            form.dataset.editId = '';
+            form.dataset.isEdit = 'false';
+            updateSubmitButton();
+            toggleAddressForm();
+            
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            showNotification(data.message || 'Error saving address', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error saving address', 'danger');
+    });
+}
+
+function deleteAddressProfile(addressId) {
+    if (confirm('Are you sure you want to delete this address?')) {
+        fetch(`/cart/address/delete/${addressId}/`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('✓ Address deleted successfully!', 'success');
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showNotification(data.message || 'Error deleting address', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error deleting address', 'danger');
+        });
+    }
+}
+
+function editAddress(addressId) {
+    // Fetch address data
+    fetch(`/cart/address/get/${addressId}/`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const address = data.data;
+            
+            // Populate form fields
+            document.getElementById('addr-first-name').value = address.first_name;
+            document.getElementById('addr-last-name').value = address.last_name;
+            document.getElementById('addr-address').value = address.address;
+            document.getElementById('addr-address2').value = address.address2;
+            document.getElementById('addr-city').value = address.city;
+            document.getElementById('addr-state').value = address.state;
+            document.getElementById('addr-postal').value = address.postal_code;
+            document.getElementById('addr-country').value = address.country;
+            document.getElementById('addr-phone').value = address.phone;
+            document.getElementById('addr-email').value = address.email;
+            
+            // Set edit mode
+            const form = document.getElementById('addressForm');
+            form.dataset.editId = address.id;
+            form.dataset.isEdit = 'true';
+            updateSubmitButton();
+            
+            // Show form
+            const formWrapper = document.getElementById('address-form-wrapper');
+            formWrapper.classList.add('show');
+            
+            // Scroll to form
+            formWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            showNotification('✓ Address loaded for editing', 'success');
+        } else {
+            showNotification(data.message || 'Error loading address', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error loading address', 'danger');
+    });
+}
+
+function userLogout() {
+    showNotification('Logging out...', 'success');
+    setTimeout(() => {
+        window.location.href = "{% url 'logout' %}";
+    }, 500);
+}
+
+function removeFromWishlistProfile(productId) {
+    if (confirm('Remove from wishlist?')) {
+        fetch(`/wishlist/remove/${productId}/`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('✓ Removed from wishlist!', 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showNotification(data.message || 'Error removing item', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error removing item', 'danger');
+        });
+    }
+}
+
+function showNotification(message, type = 'success') {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show notification-toast" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
+    
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.notification-toast');
+        if (alerts.length > 0) {
+            const lastAlert = alerts[alerts.length - 1];
+            lastAlert.classList.remove('show');
+            setTimeout(() => lastAlert.remove(), 150);
+        }
+    }, 4000);
+}
+
+// Handle address form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const addressForm = document.getElementById('addressForm');
+    if (addressForm) {
+        // Initialize dataset
+        addressForm.dataset.editId = '';
+        addressForm.dataset.isEdit = 'false';
+        
+        addressForm.addEventListener('submit', saveAddress);
+    }
+});
+</script>
+{% endblock %}

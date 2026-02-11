@@ -1,0 +1,380 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}My Wishlist - TileCommerce{% endblock %}
+
+{% block extra_css %}
+<style>
+    .wishlist-container {
+        padding: 60px 0;
+        background: #f5f5f5;
+        min-height: calc(100vh - 300px);
+    }
+
+    .wishlist-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .wishlist-title {
+        font-size: 42px;
+        font-weight: 300;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .wishlist-subtitle {
+        font-size: 14px;
+        color: #999;
+    }
+
+    .wishlist-count {
+        display: inline-block;
+        margin-top: 10px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .wishlist-items-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 30px;
+        margin-bottom: 50px;
+    }
+
+    .wishlist-product-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s;
+        position: relative;
+    }
+
+    .wishlist-product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .wishlist-product-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background: #f0f0f0;
+    }
+
+    .wishlist-product-info {
+        padding: 20px;
+    }
+
+    .wishlist-product-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+        min-height: 40px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .wishlist-product-price {
+        font-size: 20px;
+        font-weight: 700;
+        color: #FF6B35;
+        margin-bottom: 15px;
+    }
+
+    .wishlist-product-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-add-cart {
+        flex: 1;
+        background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+    }
+
+    .btn-add-cart:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+
+    .btn-remove-wishlist {
+        background: #f0f0f0;
+        color: #666;
+        border: none;
+        padding: 12px 15px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+    }
+
+    .btn-remove-wishlist:hover {
+        background: #e0e0e0;
+        color: #333;
+    }
+
+    .empty-wishlist {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 50px;
+    }
+
+    .empty-wishlist-icon {
+        font-size: 80px;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+
+    .empty-wishlist-text {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 10px;
+        font-weight: 300;
+    }
+
+    .empty-wishlist-subtext {
+        font-size: 14px;
+        color: #999;
+        margin-bottom: 30px;
+    }
+
+    .btn-continue-shopping {
+        background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-continue-shopping:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+
+    .breadcrumb-nav {
+        margin-bottom: 30px;
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+    }
+
+    .breadcrumb-item a {
+        color: #FF6B35;
+        text-decoration: none;
+    }
+
+    .breadcrumb-item a:hover {
+        text-decoration: underline;
+    }
+
+    .notification-toast {
+        position: fixed !important;
+        bottom: 20px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 2000 !important;
+        min-width: 350px !important;
+        right: auto !important;
+        top: auto !important;
+        margin: 0 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container wishlist-container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products_list' %}">Products</a></li>
+            <li class="breadcrumb-item active">Wishlist</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="wishlist-header">
+        <h1 class="wishlist-title">
+            <i class="fas fa-heart" style="color: #FF6B35; margin-right: 10px;"></i>
+            My Wishlist
+        </h1>
+        <p class="wishlist-subtitle">Your collection of favorite items</p>
+        {% if wishlist_items %}
+            <div class="wishlist-count">
+                <i class="fas fa-box"></i> {{ wishlist_items|length }} item{{ wishlist_items|length|pluralize }}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Wishlist Content -->
+    {% if wishlist_items %}
+        <div class="wishlist-items-grid">
+            {% for item in wishlist_items %}
+            <div class="wishlist-product-card" id="wishlist-item-{{ item.id }}">
+                <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}https://via.placeholder.com/250/f0f0f0/999999?text=No+Image{% endif %}" 
+                     alt="{{ item.product.name }}" class="wishlist-product-image">
+                <div class="wishlist-product-info">
+                    <h3 class="wishlist-product-name">{{ item.product.name }}</h3>
+                    <div class="wishlist-product-price">₹{{ item.product.price }}</div>
+                    <div class="wishlist-product-actions">
+                        <button class="btn-add-cart" onclick="addToCartFromWishlist({{ item.product.id }})">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                        <button class="btn-remove-wishlist" onclick="removeFromWishlist({{ item.product.id }})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-wishlist">
+            <div class="empty-wishlist-icon">
+                <i class="fas fa-heart"></i>
+            </div>
+            <p class="empty-wishlist-text">Your wishlist is empty</p>
+            <p class="empty-wishlist-subtext">Add items to your wishlist to save them for later</p>
+            <a href="{% url 'products_list' %}" class="btn-continue-shopping">
+                Browse Products
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function removeFromWishlist(productId) {
+    if (confirm('Remove this item from your wishlist?')) {
+        fetch(`/wishlist/remove/${productId}/`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('✓ Removed from wishlist!', 'success');
+                const card = document.getElementById(`wishlist-item-${productId}`);
+                if (card) {
+                    card.style.animation = 'fadeOut 0.3s ease-out';
+                    setTimeout(() => {
+                        card.remove();
+                        // Reload if no items left
+                        if (document.querySelectorAll('.wishlist-product-card').length === 0) {
+                            location.reload();
+                        }
+                    }, 300);
+                }
+            } else {
+                showNotification(data.message || 'Error removing item', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error removing item', 'danger');
+        });
+    }
+}
+
+function addToCartFromWishlist(productId) {
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ quantity: 1 })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('✓ Added to cart!', 'success');
+        } else {
+            showNotification(data.message || 'Error adding to cart', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error adding to cart', 'danger');
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showNotification(message, type = 'success') {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show notification-toast" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
+    
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.notification-toast');
+        if (alerts.length > 0) {
+            const lastAlert = alerts[alerts.length - 1];
+            lastAlert.classList.remove('show');
+            setTimeout(() => lastAlert.remove(), 150);
+        }
+    }, 4000);
+}
+
+// Add fade animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

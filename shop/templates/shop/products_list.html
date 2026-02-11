@@ -1,0 +1,209 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}All Products - TileCommerce{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-3">All Products</h1>
+            <p class="text-muted">Browse our complete collection of premium tiles</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar - Filters -->
+        <div class="col-lg-3 mb-4">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Filters</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Category Filter -->
+                    <div class="mb-4">
+                        <h6 class="mb-3">Categories</h6>
+                        <div class="list-group list-group-flush">
+                            <a href="{% url 'products_list' %}" 
+                               class="list-group-item list-group-item-action {% if not selected_category %}active{% endif %}">
+                                All Categories
+                            </a>
+                            {% for category in categories %}
+                            <a href="{% url 'products_list' %}?category={{ category.slug }}" 
+                               class="list-group-item list-group-item-action {% if selected_category == category.slug %}active{% endif %}">
+                                {{ category.name }}
+                                <span class="badge bg-light text-dark float-end">{{ category.products.count }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Sort Filter -->
+                    <div class="mb-4">
+                        <h6 class="mb-3">Sort By</h6>
+                        <select class="form-select form-select-sm" id="sort-filter" onchange="updateSort(this.value)">
+                            <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Newest First</option>
+                            <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Oldest First</option>
+                            <option value="price" {% if sort_by == 'price' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="-price" {% if sort_by == '-price' %}selected{% endif %}>Price: High to Low</option>
+                            <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name: A to Z</option>
+                            <option value="-name" {% if sort_by == '-name' %}selected{% endif %}>Name: Z to A</option>
+                        </select>
+                    </div>
+
+                    <!-- Clear Filters -->
+                    <a href="{% url 'products_list' %}" class="btn btn-outline-secondary btn-sm btn-block w-100">
+                        Clear All Filters
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Section -->
+        <div class="col-lg-9">
+            <!-- Search Bar -->
+            <div class="mb-4">
+                <form method="GET" class="d-flex gap-2">
+                    <input type="text" name="search" class="form-control" placeholder="Search products..." 
+                           value="{{ search_query }}">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                    {% if search_query %}
+                    <a href="{% url 'products_list' %}" class="btn btn-outline-secondary">Clear</a>
+                    {% endif %}
+                </form>
+            </div>
+
+            <!-- Results Info -->
+            <div class="mb-3">
+                <p class="text-muted">
+                    Showing <strong>{{ page_obj.start_index|default:0 }}</strong> to 
+                    <strong>{{ page_obj.end_index|default:0 }}</strong> of 
+                    <strong>{{ page_obj.paginator.count }}</strong> products
+                    {% if search_query %}
+                    matching "<strong>{{ search_query }}</strong>"
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Products Grid -->
+            {% if products %}
+            <div class="row">
+                {% for product in products %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card product-card h-100" onclick="window.location.href='{% url 'product_detail' product.id %}'" style="cursor: pointer; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow=''">
+                        <div class="card-img-top bg-secondary" style="height: 250px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid" style="max-height: 100%; object-fit: cover; width: 100%;">
+                            {% else %}
+                                <div class="text-white text-center w-100">
+                                    <p>No image available</p>
+                                </div>
+                            {% endif %}
+                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">New</span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-muted small">
+                                <span class="badge bg-light text-dark">{{ product.category.name }}</span>
+                            </p>
+                            <p class="card-text text-truncate" style="max-height: 40px;">{{ product.description }}</p>
+                        </div>
+                        <div class="card-footer bg-white border-top">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h5 mb-0 text-success">₹{{ product.price }}</span>
+                                <a href="{% url 'product_detail' product.id %}" class="btn btn-primary btn-sm" onclick="event.stopPropagation()">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    <!-- First Page -->
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">First</a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Previous Page -->
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                    {% endif %}
+
+                    <!-- Page Numbers -->
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Next Page -->
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                    {% endif %}
+
+                    <!-- Last Page -->
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <!-- No Products Message -->
+            <div class="alert alert-info" role="alert">
+                <h4 class="alert-heading">No Products Found</h4>
+                <p>Sorry, we couldn't find any products matching your criteria. Please try:</p>
+                <ul class="mb-0">
+                    <li>Adjusting your search terms</li>
+                    <li>Browsing a different category</li>
+                    <li>Clearing the filters</li>
+                </ul>
+                <a href="{% url 'products_list' %}" class="btn btn-primary mt-3">View All Products</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for dynamic sort -->
+<script>
+function updateSort(sortValue) {
+    const currentParams = new URLSearchParams(window.location.search);
+    currentParams.set('sort', sortValue);
+    currentParams.delete('page'); // Reset to page 1 when sorting
+    window.location.search = currentParams.toString();
+}
+</script>
+{% endblock %}
