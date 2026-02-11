@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: tilecommerce
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: ./build.sh
+    startCommand: gunicorn TileCommerce.wsgi:application
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: PYTHON_VERSION
+        value: "3.10.13"
