@@ -31,17 +31,17 @@
    pip install -r requirements.txt
    ```
 
-## Step 4: Create Your MySQL Database on PythonAnywhere
+## Step 4: Create Your PostgreSQL Database on PythonAnywhere
 
 1. Go to **Databases** tab on PythonAnywhere
 2. Click "Create a new database"
-3. Choose **MySQL**
-4. Set a password for the database
+3. Choose **PostgreSQL**
+4. The database will be created automatically (no password needed for free tier)
 5. Note your database credentials:
-   - Server: `yourusername.mysql.pythonanywhere-services.com`
+   - Server: `yourusername.postgres.pythonanywhere-services.com`
    - Database name: `yourusername$tilecommerce`
    - Username: `yourusername`
-   - Password: (as you set above)
+   - Password: (shown in the databases tab)
 
 ## Step 5: Configure Environment Variables
 
@@ -53,9 +53,9 @@
 2. Add the following (replace YOUR values):
    ```
    DEBUG=False
-   SECRET_KEY=django-insecure-qj#qua9k=qzuzg!vx_^+a28%1*u(awlo+n%p5un3(3r&ut*3=!
+   SECRET_KEY=your-generated-secret-key-here
    ALLOWED_HOSTS=yourusername.pythonanywhere.com
-   DATABASE_URL=mysql://yourusername:your_db_password@yourusername.mysql.pythonanywhere-services.com/yourusername$tilecommerce
+   DATABASE_URL=postgres://yourusername:your_db_password@yourusername.postgres.pythonanywhere-services.com/yourusername$tilecommerce
    ```
 
 3. Press `Ctrl+X`, then `Y`, then `Enter` to save
