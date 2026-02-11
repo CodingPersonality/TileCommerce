@@ -7,7 +7,7 @@ services:
     buildCommand: ./build.sh
     startCommand: gunicorn TileCommerce.wsgi:application
     envVars:
-      - key: DEBUG
-        value: "False"
       - key: PYTHON_VERSION
         value: "3.10.13"
+      - key: DEBUG
+        value: "False"
